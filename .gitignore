@@ -205,3 +205,20 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Configuration files
+*.ini
+
+# LaTeX build artifacts for `report/`
+/report/*.aux
+/report/*.log
+/report/*.out
+/report/*.toc
+/report/*.fls
+/report/*.fdb_latexmk
+/report/*.synctex.gz
+/report/*.synctex
+/report/*.nav
+/report/*.snm
+/report/*.vrb
+/report/*.pdf
