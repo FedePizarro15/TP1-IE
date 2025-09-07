@@ -71,11 +71,11 @@ Abstract
 
 \end{abstract}
 
-\section{Introducción}
+\section*{Introducción}
 
 Actualmente la compresión de imágenes es una técnica con múltiples aplicaciones. 
 Las imágenes están tomando un papel fundamental en la comunicación global. 
-Una de las principales causas por las que una compresión de imágenes eficaz es crucial es su capacidad de reducir el espacio de almacenamiento necesario para estos archivos.
+Una de las principales causas por las que una compresión de imágenes eficaz es crucial, es su capacidad de reducir el espacio de almacenamiento necesario para estos archivos.
 
 Para ello, trabajaremos con el Análisis de Componentes Principales (PCA). 
 Este método nos ayuda a comprimir por medio de la reducción de dimensionalidad.
@@ -85,10 +85,10 @@ En otras palabras, visualizaremos una imagen como una gran matriz donde algunas 
 La correlación entre píxeles puede transformarse en un nuevo conjunto de variables no correlacionadas, llamadas componentes principales. 
 Ellos capturan la información esencial de la imagen, reduciendo la redundancia y permitiendo una compresión eficiente.
 
-El objetivo es implementar compresión por bloques usando PCA, reconstruir las imágenes a partir de las componentes conservadas y evaluar la calidad mediante métricas como el error cuadrático medio (MSE) y la fracción de energía conservada. 
+El objetivo de este trabajo es implementar compresión por bloques usando PCA, reconstruir las imágenes a partir de las componentes conservadas y evaluar la calidad mediante métricas como el error cuadrático medio (MSE) y el porcentaje de espacio ahorrado. 
 También se analizará la relación entre el grado de compresión y la pérdida visual.
 
-\section{Ejercicio 1}
+\section*{Ejercicio 1}
 
 El propósito del primer ejercicio fue analizar la correlación entre los píxeles vecinos verticalmente y comprobar como una transformación basada en PCA puede desacoplar las dos variables con el objetivo de facilitar la compresión.
 
@@ -101,14 +101,14 @@ Los gráficos obtenidos son los siguientes:
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\textwidth]{img1a1.png}
-  \caption{img\_01 (escala de grises).}
+  \caption{img\_01.jpg (escala de grises).}
   \label{fig:img01}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\textwidth]{img1a2.png}
-  \caption{img\_01 (escala de grises).}
+  \caption{img\_02.jpg (escala de grises).}
   \label{fig:img02}
 \end{figure}
 
@@ -133,11 +133,11 @@ donde $E$ son los autovectores de $C_X$ y $\mu$ la media.
   \label{fig:imgs_comp}
 \end{figure}
 
-Las gráficas de dispersión confirmaron visualmente la diferencia: $img_02$ presenta una nube alargada cercana a la diagonal (alta correlación),
- mientras que $img_01$ tiene una nube más dispersa (baja correlación). El coeficiente de correlación cuantifica esto y la transformación PCA (decorrelación) rota los datos de modo que las nuevas variables son no correlacionadas y la varianza queda concentrada en la primera componente. 
-Por lo tanto, $img_02$ es más susceptible a compresión por reducción de componentes que $img_01$.
+Las gráficas de dispersión confirmaron visualmente la diferencia: $img\_02$ presenta una nube alargada cercana a la diagonal (alta correlación),
+ mientras que $img\_01$ tiene una nube más dispersa (baja correlación). El coeficiente de correlación cuantifica esto y la transformación PCA (decorrelación) rota los datos de modo que las nuevas variables son no correlacionadas y la varianza queda concentrada en la primera componente. 
+Por lo tanto, $img\_02$ es más susceptible a compresión por reducción de componentes que $img\_01$.
 
-\section{Ejercicio 2}
+\section*{Ejercicio 2}
 
 Ahora nos necesitamos implementar y aplicar PCA por bloques para lograr la compresión de imágenes.
 
@@ -164,7 +164,7 @@ La figura \ref{fig:evals} muestra los autovalores de $C_X$ con una línea vertic
 La descomposición PCA por bloques muestra que buena parte de la energía queda concentrada en pocas componentes principales. 
 Con el criterio de ahorro $S=0.8$ usado (conservando $k\approx 13$ de $m=64$), se consigue una reducción significativa de la dimensionalidad manteniendo la mayor parte de la varianza; por tanto, la estrategia de compresión por PCA es adecuada para esta imagen bajo este criterio. 
 
-\section{Ejercicio 3}
+\section*{Ejercicio 3}
 
 Para este ejercicio, reconstruiremos la imagen a partir de las representaciones reducidas del ejercicio anterior.
 
@@ -192,7 +192,7 @@ La figura \ref{fig:recon} muestra la comparación original / reconstruida para \
 
 En la reconstrucción se aprecia que las estructuras principales y texturas generales se conservan; la pérdida se manifiesta como un ligero suavizado y atenuación de detalles finos en zonas de alta frecuencia.
 
-\section{Ejercicio 4}
+\section*{Ejercicio 4}
 
 En este ejercicio tendremos como objetivo cuantificar el error de reconstrucción frente al porcentaje de espacio ahorrado $S$ y comparar visualmente varias reconstrucciones representativas.
 
@@ -224,6 +224,6 @@ Visualmente se aprecia un ligero suavizado para $S=75$--$80$, mientras que en $S
 
 La curva MSE muestra la típica relación no lineal entre compresión y calidad: los primeros incrementos en ahorro producen poca pérdida (alta eficiencia de representación), pero más allá de cierto umbral la calidad cae rápidamente. Para esta imagen y el esquema empleado, un compromiso razonable entre ahorro y calidad se sitúa alrededor de $S\approx 75$--$85\%$. La elección final depende del requisito de calidad visual o métrico del sistema destino.
 
-\section{Conclusión}
+\section*{Conclusión}
 
 \end{document}
