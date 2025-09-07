@@ -45,7 +45,7 @@
     \renewcommand{\footrulewidth}{1pt}
 }
 
-\fancyhead[L]{\textit{Título}}
+\fancyhead[L]{\textit{Trabajo Práctico N°1}}
 \fancyhead[R]{\textit{Orozco, Pizarro}}
 
 \fancyfoot[C]{Página~\thepage}
@@ -53,7 +53,7 @@
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
 
-\title{Trabajo Práctico N°1}
+\title {Compresión de Imágenes \\[1ex] \large Trabajo Práctico N°1}
 \author{Orozco Lopez Alejandro, Pizarro Dal Maso Federico}
 \date{8 de Septiembre, 2025}
 
@@ -75,13 +75,13 @@ Abstract
 
 Actualmente la compresión de imágenes es una técnica con múltiples aplicaciones. 
 Las imágenes están tomando un papel fundamental en la comunicación global. 
-Una de las principales por las que una compresión de imágenes eficaz es crucial es su capacidad de reducir el espacio de almacenamiento necesario para estos archivos.
+Una de las principales causas por las que una compresión de imágenes eficaz es crucial es su capacidad de reducir el espacio de almacenamiento necesario para estos archivos.
 
 Para ello, trabajaremos con el Análisis de Componentes Principales (PCA). 
 Este método nos ayuda a comprimir por medio de la reducción de dimensionalidad.
 Transforma los datos en un nuevo sistema de coordenadas, donde el primer eje (componente principal) captura la mayor varianza de los datos, seguido de los ejes subsiguientes que capturan varianzas decrecientes.
 
-En otras palabras, imaginemos una imagen como una gran matriz donde algunas columnas pueden tener dependencias lineales. 
+En otras palabras, visualizaremos una imagen como una gran matriz donde algunas columnas pueden tener dependencias lineales. 
 La correlación entre píxeles puede transformarse en un nuevo conjunto de variables no correlacionadas, llamadas componentes principales. 
 Ellos capturan la información esencial de la imagen, reduciendo la redundancia y permitiendo una compresión eficiente.
 
@@ -92,18 +92,9 @@ También se analizará la relación entre el grado de compresión y la pérdida 
 
 El propósito del primer ejercicio fue analizar la correlación entre los píxeles vecinos verticalmente y comprobar como una transformación basada en PCA puede desacoplar las dos variables con el objetivo de facilitar la compresión.
 
-A cada imagen la cargamos en escala de grises y la normalizamos.
+Primero, para el inciso (a), a cada imagen la cargamos en escala de grises y la normalizamos.
 Formamos vectores de tamaño $2\times 1$ con pixeles contiguos verticales: \(X = \begin{bmatrix} X_1 \\ X_2 \end{bmatrix}\). 
-Graficamos la dispersión de $X_1$ vs $X_2$ junto con la imagen original. Estimamos el coeficiente de correlación de Pearson
-    \[
-      r = \frac{\operatorname{cov}(X_1,X_2)}{\sigma_{X_1}\sigma_{X_2}},
-    \]
-el cual cuantifica la dependencia lineal entre píxeles vecinos.
-Para descorrelacionar aplicamos PCA: centramos los datos, calculamos la matriz de covarianza $C_X$, hicimos la descomposición en autovalores/autovectores y proyectamos los datos sobre los autovectores.
-    \[
-      Y = E^\top (X - \mu),
-    \]
-donde $E$ son los autovectores de $C_X$ y $\mu$ la media.
+Graficamos la dispersión de $X_1$ vs $X_2$ junto con la imagen original. 
 
 Los gráficos obtenidos son los siguientes:
 
@@ -121,6 +112,18 @@ Los gráficos obtenidos son los siguientes:
   \label{fig:img02}
 \end{figure}
 
+Siguiendo con el inciso (b), estimamos el coeficiente de correlación de Pearson
+    \[
+      r = \frac{\operatorname{cov}(X_1,X_2)}{\sigma_{X_1}\sigma_{X_2}},
+    \]
+el cual cuantifica la dependencia lineal entre píxeles vecinos.
+
+Por último, el inciso (c). Para descorrelacionar aplicamos PCA: centramos los datos, calculamos la matriz de covarianza $C_X$, hicimos la descomposición en autovalores/autovectores y proyectamos los datos sobre los autovectores.
+    \[
+      Y = E^\top (X - \mu),
+    \]
+donde $E$ son los autovectores de $C_X$ y $\mu$ la media.
+
 \begin{figure}[htbp]
   \centering
   \subfloat[img\_01]{\includegraphics[width=0.48\textwidth]{img1c1.png}\label{fig:img03}}
@@ -130,10 +133,97 @@ Los gráficos obtenidos son los siguientes:
   \label{fig:imgs_comp}
 \end{figure}
 
+Las gráficas de dispersión confirmaron visualmente la diferencia: $img_02$ presenta una nube alargada cercana a la diagonal (alta correlación),
+ mientras que $img_01$ tiene una nube más dispersa (baja correlación). El coeficiente de correlación cuantifica esto y la transformación PCA (decorrelación) rota los datos de modo que las nuevas variables son no correlacionadas y la varianza queda concentrada en la primera componente. 
+Por lo tanto, $img_02$ es más susceptible a compresión por reducción de componentes que $img_01$.
+
 \section{Ejercicio 2}
+
+Ahora nos necesitamos implementar y aplicar PCA por bloques para lograr la compresión de imágenes.
+
+Para esto cargamos la imagen en escala de grises nuevamente y la normalizamos. 
+Dividimos la imagen en bloques (no solapados) de 8x8. A cada bloque lo vectorizamos (longitud $m=64$) y todas las columnas se apilan formando la matriz de datos $X\in\mathbb{R}^{m\times N}$.
+Centramos $X$ restando la media por fila y se estima la matriz de covarianza $C_X=\frac{1}{N}X_cX_c^\top$.
+Calculamos la descomposición en autovalores/autovectores de $C_X$ mediante \texttt{np.linalg.eigh} y se ordenan descendientemente.
+Para lograr el ahorro deseado $S$ (en el código, \texttt{S=0.8}), seleccionamos el número de componentes conservadas
+    \[
+      k = \left\lceil (1 - S)\, m \right\rceil,
+    \]
+    es decir, conservamos las primeras $k$ componentes principales y el resto se descarta.
+Proyectamos los bloques centrados sobre las primeras $k$ autovectores para obtener las representaciones de menor dimensión.
+
+La figura \ref{fig:evals} muestra los autovalores de $C_X$ con una línea vertical que indica $k$. Se observa que los primeros autovalores concentran la mayor parte de la varianza, y a partir de la componente $k$ los autovalores son significativamente menores. Esto indica que la información esencial de los bloques puede representarse con pocas componentes principales, justificando la compresión.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img2.png}
+  \caption{Autovalores de $C_X$.}
+  \label{fig:evals}
+\end{figure}
+
+La descomposición PCA por bloques muestra que buena parte de la energía queda concentrada en pocas componentes principales. 
+Con el criterio de ahorro $S=0.8$ usado (conservando $k\approx 13$ de $m=64$), se consigue una reducción significativa de la dimensionalidad manteniendo la mayor parte de la varianza; por tanto, la estrategia de compresión por PCA es adecuada para esta imagen bajo este criterio. 
 
 \section{Ejercicio 3}
 
+Para este ejercicio, reconstruiremos la imagen a partir de las representaciones reducidas del ejercicio anterior.
+
+Para abordarlo, realizamos la reconstrucción por bloques.
+A partir de las proyecciones $Y$ y los $k$ autovectores seleccionados se reconstruye cada vector de bloque como
+  \[
+    \widehat{X} = U_k \, Y + \mu,
+  \]
+donde $U_k$ contiene los $k$ primeros autovectores y $\mu$ es el vector de medias usado en el centrado.
+Cada columna de $\widehat{X}$ se reordena a un bloque $8\times8$ y se vuelve a ensamblar la imagen completa (el padding aplicado en la etapa de bloqueado se elimina recortando a la forma original).
+Se realiza una comparación visual (original vs reconstruida) y se calcula una métrica cuantitativa de error, por ejemplo el error cuadrático medio (MSE)
+\[
+    \mathrm{MSE} \;=\; \frac{1}{N_w N_h} \sum_{i=1}^{N_w} \sum_{j=1}^{N_h} \bigl(p_{ij} - \widehat{p}_{ij}\bigr)^2
+\]
+
+La figura \ref{fig:recon} muestra la comparación original / reconstruida para \texttt{img\_03.jpg} con $S=0.8$ (conservando $k$ componentes). 
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img3.png}\label{fig:orig}
+  \hfill
+  \caption{Comparación entre imagen original y reconstruida (bloques 8×8, $S=0.8$).}
+  \label{fig:recon}
+\end{figure}
+
+En la reconstrucción se aprecia que las estructuras principales y texturas generales se conservan; la pérdida se manifiesta como un ligero suavizado y atenuación de detalles finos en zonas de alta frecuencia.
+
 \section{Ejercicio 4}
+
+En este ejercicio tendremos como objetivo cuantificar el error de reconstrucción frente al porcentaje de espacio ahorrado $S$ y comparar visualmente varias reconstrucciones representativas.
+
+Cálculo de MSE vs.\ $S$: para la imagen \texttt{img\_04.jpg} se recorrieron los valores $S=\{5,10,\dots,95\}\%$. Para cada $S$ se aplicó el procedimiento de compresión por bloques (Ejercicio 2) y la reconstrucción (Ejercicio 3). El error medio cuadrático se calculó entre la imagen original $I$ y la reconstruida $\widehat{I}$ y se almacenó para graficar.
+Visualización de reconstrucciones: se generaron y compararon las imágenes reconstruidas para $S\in\{75,80,85,90,95\}\%$ junto con la original, para evaluar la degradación perceptual conforme aumenta el ahorro.
+
+La figura \ref{fig:mse_vs_s} muestra la curva MSE frente a $S$. Observamos que para valores moderados de ahorro (hasta aproximadamente $S\approx 75$--$80\%$) el MSE permanece bajo y la degradación visual es pequeña; a partir de ahí el error crece rápidamente, indicando pérdida notable de detalle.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img4a.png}
+  \caption{MSE en función del ahorro $S$ para \texttt{img\_04.jpg}.}
+  \label{fig:mse_vs_s}
+\end{figure}
+
+La figura \ref{fig:recons} muestra la imagen original y las reconstrucciones para $S=\{75,80,85,90,95\}\%$. 
+Visualmente se aprecia un ligero suavizado para $S=75$--$80$, mientras que en $S\geq90$ aparecen pérdidas de detalle y artefactos más evidentes.
+
+\begin{figure}[htbp]
+  \centering
+  \subfloat[$S=75\%$]{\includegraphics[width=0.50\textwidth]{img4b1.png}}\\[6pt]
+  \subfloat[$S=80\%$]{\includegraphics[width=0.50\textwidth]{img4b2.png}}\\[6pt]
+  \subfloat[$S=85\%$]{\includegraphics[width=0.50\textwidth]{img4b3.png}}\\[6pt]
+  \subfloat[$S=90\%$]{\includegraphics[width=0.50\textwidth]{img4b4.png}}\\[6pt]
+  \subfloat[$S=95\%$]{\includegraphics[width=0.50\textwidth]{img4b5.png}}
+  \caption{Comparación visual: original y reconstrucciones para distintos $S$.}
+  \label{fig:recons}
+\end{figure}
+
+La curva MSE muestra la típica relación no lineal entre compresión y calidad: los primeros incrementos en ahorro producen poca pérdida (alta eficiencia de representación), pero más allá de cierto umbral la calidad cae rápidamente. Para esta imagen y el esquema empleado, un compromiso razonable entre ahorro y calidad se sitúa alrededor de $S\approx 75$--$85\%$. La elección final depende del requisito de calidad visual o métrico del sistema destino.
+
+\section{Conclusión}
 
 \end{document}
